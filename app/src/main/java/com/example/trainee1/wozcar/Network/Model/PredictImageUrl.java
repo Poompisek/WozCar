@@ -1,9 +1,5 @@
 package com.example.trainee1.wozcar.Network.Model;
 
-import android.net.Uri;
-
-import com.example.trainee1.wozcar.Activity.MainActivity;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -23,12 +19,10 @@ import timber.log.Timber;
 
 public class PredictImageUrl {
 
-    public static void main()
-    {
+    public static void main() {
         HttpClient httpclient = HttpClients.createDefault();
 
-        try
-        {
+        try {
             URIBuilder builder = new URIBuilder("https://southcentralus.api.cognitive.microsoft.com/customvision/v1.0/Prediction/e1ba9ac9-07bd-4585-ac70-6c0ff80e592c/image");
 
 //            builder.setParameter("iterationId", "{string}");
@@ -51,13 +45,10 @@ public class PredictImageUrl {
 
             Timber.d("Response in JSON", entity);
 
-            if (entity != null)
-            {
+            if (entity != null) {
                 System.out.println(EntityUtils.toString(entity));
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }

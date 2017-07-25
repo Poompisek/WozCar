@@ -1,13 +1,15 @@
-package com.example.trainee1.wozcar.Network.Model;
+package com.example.trainee1.wozcar.Network;
 
 import android.content.Context;
 
 import com.example.trainee1.wozcar.Contextor;
-import com.example.trainee1.wozcar.Network.APIService;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
-import okhttp3.*;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -26,6 +28,8 @@ public class ConnectionService {
 
     private Retrofit retrofit = null;
 
+    private static String BASE_URL = "https://southcentralus.api.cognitive.microsoft.com/customvision/v1.0/Prediction/e1ba9ac9-07bd-4585-ac70-6c0ff80e592c/";
+
     private ConnectionService() {
 
         context = Contextor.getInstance().getContext();
@@ -43,20 +47,21 @@ public class ConnectionService {
             public okhttp3.Response intercept(Chain chain) throws IOException {
                 Request request = chain.request().newBuilder()
                         .addHeader("Prediction-Key", "1183fe36baf145bab59e664e4642c757")
-                        //.addHeader("Content-Type", "application/octet-stream")
                         .build();
 
                 return chain.proceed(request);
             }
         });
-//        httpClient.connectTimeout(15, TimeUnit.SECONDS)
-//                .writeTimeout(15, TimeUnit.SECONDS)
-//                .readTimeout(30, TimeUnit.SECONDS);
-//        httpClient.addInterceptor(logging);
+
+        httpClient.connectTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS);
+        httpClient.addInterceptor(logging);
+
 //        httpClient.certificatePinner(MyCertificatePinner.getInstance().getCertificatePinner());
 
         retrofit = new Retrofit.Builder()
-                .baseUrl("https://southcentralus.api.cognitive.microsoft.com/customvision/v1.0/Prediction/e1ba9ac9-07bd-4585-ac70-6c0ff80e592c/")
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient.build())
                 .build();

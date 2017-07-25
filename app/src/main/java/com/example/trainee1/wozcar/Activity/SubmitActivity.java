@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.ListView;
 
-import com.example.trainee1.wozcar.Network.Model.ConnectionService;
 import com.example.trainee1.wozcar.R;
 
 import java.io.File;

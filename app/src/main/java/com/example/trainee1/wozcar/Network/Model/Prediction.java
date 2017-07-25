@@ -1,6 +1,5 @@
 package com.example.trainee1.wozcar.Network.Model;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -10,15 +9,12 @@ import com.google.gson.annotations.SerializedName;
 public class Prediction {
 
     @SerializedName("TagId")
-    @Expose
     private String tagId;
 
     @SerializedName("Tag")
-    @Expose
     private String tag;
 
     @SerializedName("Probability")
-    @Expose
     private Double probability;
 
     public String getTagId() {

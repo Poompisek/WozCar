@@ -18,7 +18,8 @@ import android.widget.Toast;
 
 import com.example.trainee1.wozcar.BuildConfig;
 import com.example.trainee1.wozcar.Network.Model.ApiResponse;
-import com.example.trainee1.wozcar.Network.Model.ConnectionService;
+import com.example.trainee1.wozcar.Network.ConnectionService;
+import com.example.trainee1.wozcar.Network.Model.Prediction;
 import com.example.trainee1.wozcar.R;
 
 import java.io.ByteArrayOutputStream;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -66,9 +68,9 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(userChoosenTask.equals("Take Photo"))
+                    if (userChoosenTask.equals("Take Photo"))
                         cameraIntent();
-                    else if(userChoosenTask.equals("Choose from Library"))
+                    else if (userChoosenTask.equals("Choose from Library"))
                         galleryIntent();
                 } else {
                     //code for deny
@@ -89,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressWarnings("deprecation")
     private void onSelectFromGalleryResult(Intent data) {
-        bm=null;
+        bm = null;
         if (data != null) {
             try {
                 bm = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), data.getData());
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         imgV_camera.setImageBitmap(bm);
         imgV_camera.setRotation(90);
     }
+
     private void onCaptureImageResult(Intent data) {
         thumbnail = (Bitmap) data.getExtras().get("data");
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -122,20 +125,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void selectImage() {
-        final CharSequence[] items = { "Take Photo", "Choose from Library", "Cancel" };
+        final CharSequence[] items = {"Take Photo", "Choose from Library", "Cancel"};
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Add Photo");
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                boolean result=Utility.checkPermission(MainActivity.this);
+                boolean result = Utility.checkPermission(MainActivity.this);
                 if (items[item].equals("Take Photo")) {
                     userChoosenTask = "Take Photo";
-                    if(result)
+                    if (result)
                         cameraIntent();
                 } else if (items[item].equals("Choose from Library")) {
                     userChoosenTask = "Choose from Library";
-                    if(result)
+                    if (result)
                         galleryIntent();
                 } else if (items[item].equals("Cancel")) {
                     dialog.dismiss();
@@ -145,30 +148,25 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void cameraIntent()
-    {
+    private void cameraIntent() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_CAMERA);
     }
 
-    private void galleryIntent()
-    {
+    private void galleryIntent() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);//
-        startActivityForResult(Intent.createChooser(intent, "Select File"),SELECT_FILE);
+        startActivityForResult(Intent.createChooser(intent, "Select File"), SELECT_FILE);
     }
 
-    private void callImage(){
+    private void callImage() {
+
         File imgFile1 = new File(Environment.getExternalStorageDirectory(), "DCIM/Camera/IMG_Image01.jpg");
         if (imgFile1.exists()) {
             RequestBody reqFile1 = RequestBody.create(MediaType.parse("upload "), imgFile1);
             file1 = MultipartBody.Part.createFormData("image", imgFile1.getName(), reqFile1);
         }
-        Timber.d("Call Image");
-
-        Toast.makeText(getApplicationContext()
-                , "Call Image", Toast.LENGTH_SHORT).show();
 
         Call<ApiResponse> call = ConnectionService.getInstance().getApiService().getPrediction(file1);
         call.enqueue(claimRequestCallBack);
@@ -189,14 +187,11 @@ public class MainActivity extends AppCompatActivity {
 
             if (v == btn_submit) {
 
-                if(null!=imgV_camera.getDrawable()){
-                    Toast.makeText(getApplicationContext()
-                            , "Visible", Toast.LENGTH_SHORT).show();
+                if (null != imgV_camera.getDrawable()) {
                     callImage();
-                }else {
+                } else {
                     Toast.makeText(getApplicationContext()
                             , "No picture", Toast.LENGTH_SHORT).show();
-
                 }
             }
         }
@@ -206,25 +201,21 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
             if (response.isSuccessful()) {
+                ApiResponse apiResponse = response.body();
+
+                List<Prediction> list = apiResponse.getPredictions();
 
                 Toast.makeText(getApplicationContext()
-                        , "Body : " + response.body(), Toast.LENGTH_SHORT).show();
-
-//                Intent i = new Intent(MainActivity.this, SubmitActivity.class);
-//                startActivity(i);
-
+                        , "Successful", Toast.LENGTH_SHORT).show();
             } else {
-                Timber.d("๊UnSuccessful");
-
                 Toast.makeText(getApplicationContext()
-                        , "unSuccessful :"+ response.message(), Toast.LENGTH_SHORT).show();
+                        , "unSuccessful", Toast.LENGTH_SHORT).show();
             }
         }
 
         @Override
         public void onFailure(Call<ApiResponse> call, final Throwable t) {
             Timber.d("Fail");
-
             Toast.makeText(getApplicationContext()
                     , "Fail", Toast.LENGTH_SHORT).show();
         }
